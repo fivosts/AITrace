@@ -211,6 +211,7 @@ def serve(in_queue: queue.Queue,
       ips = "ipv4: {}".format(hostname[0])
     l.getLogger().warn("Server Public IP: {}".format(ips))
     waitress.serve(app, host = '0.0.0.0', port = port)
+    l.getLogger().info("Access at http://{}:{}".format(hostname[1], port))
   except KeyboardInterrupt:
     return
   except Exception as e:
