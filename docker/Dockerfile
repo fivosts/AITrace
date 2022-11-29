@@ -14,7 +14,7 @@ RUN apt-get update
 RUN apt-get install -y sudo git wget
 
 # Clone repository
-RUN git clone git@github.com:AITrace/AITrace_prvt.git
+RUN git clone https://github.com/fivosts/AITrace.git
 
 # Move to app base dir.
 WORKDIR /home/AITrace
