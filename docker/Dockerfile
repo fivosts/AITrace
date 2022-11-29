@@ -55,7 +55,7 @@ RUN protoc /home/AITrace/AITrace/proto/aitrace.proto  --proto_path="/home/AITrac
 RUN protoc /home/AITrace/AITrace/proto/dataset.proto  --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
 RUN protoc /home/AITrace/AITrace/proto/model.proto    --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
 RUN protoc /home/AITrace/AITrace/proto/sampler.proto  --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
-RUN protoc /home/AITrace/AITrace/proto/internal.proto  --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
+RUN protoc /home/AITrace/AITrace/proto/internal.proto --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
 
 # Setup python environment
 RUN mkdir -p /home/AITrace/env
