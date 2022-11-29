@@ -30,7 +30,7 @@ model {
   }
 }
 sampler {
-  input_feed: true
+  server_sampling: true
   server_port: 8080
   prediction_type: "full"
   batch_size: 1
