@@ -1,7 +1,7 @@
 config {
   dataset {
     hecht_dataset {
-      local_tar_archive: "$PWD/../datasets/Kuflik_Hecht/museum_data.zip"
+      local_tar_archive: "$PWD/datasets/Kuflik_Hecht/museum_data.zip"
     }
   }
   architecture {
