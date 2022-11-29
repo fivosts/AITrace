@@ -1,0 +1,57 @@
+// The file defines the protos for describing AITrace instances.
+
+syntax = "proto2";
+
+package AITrace;
+
+option go_package = "AITracepb";
+option java_multiple_files = true;
+option java_outer_classname = "SamplerProto";
+option java_package = "com.AITrace";
+
+// The specification of an AITrace sampler.
+message Sampler {
+  // The initial text to the seed the language model with. Each sample will
+  // begin with this text.
+  oneof sample_feed {
+    // Simple string
+    bool input_feed      = 1;
+    // Sample from training set
+    bool train_set       = 2;
+    // Sample from validation set
+    bool validation_set  = 3;
+    // Sample live by getting input() from user.
+    bool server_sampling = 4;
+  }
+  optional string prediction_type = 5;
+  // The sampling batch size.
+  optional int32 batch_size = 7;
+  // The sampling temperature. Must be >= 0. A recommended starting value is
+  // 1000000 (i.e. 1.0 in real values).
+  optional int32 temperature_micros = 9;
+  // The criteria that determine when to terminate a sample, in the order in
+  // which they will be executed. Duplicates are allowed, for example if you
+  // would like to have symmetrical token depth counters for two pairs of
+  // tokens.
+  optional int32 server_port = 10;
+  repeated SampleTerminationCriterion termination_criteria = 11;
+}
+
+// Criteria used for determining when to stop sampling.
+message SampleTerminationCriterion {
+  oneof criterion {
+    MaxTokenLength maxlen = 1;
+    SymmetricalTokenDepth symtok = 2;
+  }
+}
+
+message MaxTokenLength {
+  // The maximum length of a sample, as a number of tokens. The length of the
+  // Sampler.start_text counts towards this total.
+  optional int32 maximum_tokens_in_sample = 1;
+}
+
+message SymmetricalTokenDepth {
+  optional string depth_increase_token = 1;
+  optional string depth_decrease_token = 2;
+}

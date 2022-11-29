@@ -1,0 +1,9 @@
+<div class="container">
+  <h2>Visitor Label: {{data.visitor_label}}<br></h3>
+
+  <h3>Exhibit ID - Attendance time<br></h3>
+  {% for visit in data.predicted_visit %}
+    <p class="">{{visit[0]}} - {{visit[1]}} sec<br></p>
+  {% endfor %}
+
+</div>

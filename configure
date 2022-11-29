@@ -1,0 +1,107 @@
+#!/bin/bash
+
+python=""
+root=$(pwd)
+app=$root"/AITrace/aitrace.py"
+env=$root"/env/"
+
+function installAptDeps()
+{
+  echo "-- Select python version to install. [Default]: python3.8"
+  read python
+  if [[ $python == "" ]]
+  then
+    python="python3.8"
+  elif [[ $python != "python3.5" && $python != "python3.6" && $python != "python3.7" && $python != "python3.8" ]]
+  then
+    echo "-- $python not recognized. Exiting..."
+    exit
+  else
+    echo "-- Selected $python"
+  fi
+  echo "-- Installing all apt dependencies"
+  sudo apt-get update
+  sudo apt install -y software-properties-common
+  sudo add-apt-repository ppa:deadsnakes/ppa
+  sudo apt-get update
+  sudo apt-get install -y \
+  build-essential \
+  ca-certificates \
+  curl \
+  wget \
+  protobuf-compiler \
+  flex \
+  nasm \
+  tar \
+  m4 \
+  pkg-config \
+  $python \
+  $python-dev \
+  $python-venv \
+  python3-distutils \
+  python3-numpy \
+  pv \
+  zlib1g-dev \
+  lib32ncurses5-dev \
+  libexempi-dev \
+  libmpc-dev \
+  libboost-all-dev \
+  mysql-server \
+  libmysqlclient-dev \
+  libsqlite3-dev
+  echo "-- Installed apt packages."
+}
+
+function installPythonEnv()
+{
+  echo "-- Setting up Python..."
+  if [[ $python == "" ]]
+  then
+    python="python3.8"
+  fi
+  # Py env folder
+  mkdir -p $env
+  # Install pip
+  $python -m venv $env
+  python=$env"bin/"$python
+  curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+  $python /tmp/get-pip.py
+  # Install python deps
+  $python -m pip install wheel setuptools==53.1.0
+  $python -m pip install --upgrade pip==21.2.4
+  $python -m pip install --disable-pip-version-check --upgrade -r ./requirements.pip
+  echo "-- Python environment setup complete."
+}
+
+function compileProtobufs()
+{
+   echo $root
+   protoc $root/AITrace/proto/aitrace.proto  --proto_path=$root"/AITrace" --python_out=$root"/AITrace"
+   protoc $root/AITrace/proto/dataset.proto  --proto_path=$root"/AITrace" --python_out=$root"/AITrace"
+   protoc $root/AITrace/proto/model.proto    --proto_path=$root"/AITrace" --python_out=$root"/AITrace"
+   protoc $root/AITrace/proto/sampler.proto  --proto_path=$root"/AITrace" --python_out=$root"/AITrace"
+   protoc $root/AITrace/proto/internal.proto --proto_path=$root"/AITrace" --python_out=$root"/AITrace"
+   echo "-- Compiled protobufs successfully!"
+}
+
+function installAITrace()
+{
+  # TODO modularize CLGEN_BINARY variables.
+  sudo rm $root"/aitrace"
+  echo "##############################" >  $root"/aitrace"
+  echo "# Auto generated bash binary #" >> $root"/aitrace"
+  echo "# --------  AITrace ---------#" >> $root"/aitrace"
+  echo "#       Not to be edited     #" >> $root"/aitrace"
+  echo "##############################" >> $root"/aitrace"
+  echo "eval PYTHONPATH=$root $python $app \"\$@\"" >> $root"/aitrace"
+  chmod 551 $root"/aitrace"
+}
+
+set -eu
+installAptDeps
+compileProtobufs
+installPythonEnv
+installAITrace
+echo "-- Coniguration complete!"
+echo "-- Run './aitrace <args>' to run."
+echo "-- Type './aitrace --help' for help."

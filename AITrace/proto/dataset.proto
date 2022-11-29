@@ -1,0 +1,49 @@
+// The file defines the protos for describing AITrace instances.
+
+syntax = "proto2";
+
+package AITrace;
+
+option go_package = "AITracepb";
+option java_multiple_files = true;
+option java_outer_classname = "DatasetProto";
+option java_package = "com.AITrace";
+
+// Dataset specification.
+message Dataset {
+  oneof dataset {
+    HechtDataset   hecht_dataset    = 1;
+    AITraceDataset ai_trace_dataset = 2;
+  }
+}
+
+// The specification of a training corpus.
+message HechtDataset {
+  // The input contentfiles to the corpus.
+  // Shell variables are expanded. E.g. $HOME -> /home/<user>.
+  oneof contentfiles {
+    // The path to a directory on the local system containing content files.
+    string local_directory        = 1;
+    // The path to a tarball archive file containing content files.
+    string local_tar_archive      = 2;
+  }
+}
+
+message AITraceDataset {
+  // The input contentfiles to the corpus.
+  // Shell variables are expanded. E.g. $HOME -> /home/<user>.
+  oneof contentfiles {
+    // The path to a directory on the local system containing content files.
+    string local_directory        = 1;
+    // The path to a tarball archive file containing content files.
+    string local_tar_archive      = 2;
+  }
+}
+
+// The tokenizer to use to encode the corpus.
+message tokenizer{
+  required string token_type             = 1;
+  optional string token_list             = 2;
+  optional bool   mask_tokens            = 3;
+  optional bool   wordpiece_tokenization = 4;
+}
