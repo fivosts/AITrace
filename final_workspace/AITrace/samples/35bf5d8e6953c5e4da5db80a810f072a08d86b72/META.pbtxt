@@ -1,0 +1,12 @@
+config {
+  input_feed: true
+  prediction_type: "full"
+  batch_size: 1
+  temperature_micros: 10000000
+  server_port: 8080
+  termination_criteria {
+    maxlen {
+      maximum_tokens_in_sample: 512
+    }
+  }
+}
