@@ -1,1 +1,1 @@
-sudo docker build --tag aitrace --network host --force-rm --no-cache .
+sudo docker build --tag fivosts/aitrace:native --network host --force-rm --no-cache .
