@@ -75,4 +75,4 @@ RUN echo "eval PYTHONPATH=/home/AITrace/ /home/AITrace/env/bin/python3.8 /home/A
 RUN chmod 551 "/home/AITrace/aitrace"
 
 # Start application
-CMD cd /home/AITrace/ && git pull && /home/AITrace/aitrace --workspace_dir final_workspace --config model_zoo/smoke_test.pbtxt --pt_cpu_only --checkpoint_step 104111 --only_sample
+CMD cd /home/AITrace/ && git pull && /home/AITrace/aitrace --workspace_dir native_workspace --config model_zoo/smoke_test_native.pbtxt --pt_cpu_only --checkpoint_step 19263 --only_sample
