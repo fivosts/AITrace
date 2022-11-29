@@ -128,11 +128,11 @@ class NextStepHead(torch.nn.Module):
     self.dropout = torch.nn.Dropout(p = config.dropout_prob)
     # self.l2 = torch.nn.Linear(config.hidden_size, config.output_size, bias = True)
     self.exhibit = torch.nn.Linear(2*config.output_size, 45, bias = True)
-    self.time    = torch.nn.Linear(2*config.output_size, 1, bias = True)
+    self.time    = torch.nn.Linear(2*config.output_size, 2048, bias = True)
 
     self.softmax = torch.nn.Softmax(dim = 1)
-    self.scaler  = lambda x: x / 50
-    self.reverse_scaler = lambda x: x * 50
+    # self.scaler  = lambda x: x / 50
+    # self.reverse_scaler = lambda x: x * 50
     return
 
   def calculate_loss(self, output_id, output_time, target_id) -> typing.Tuple["torch.Tensor", typing.Tuple[int, int, int, int]]:
@@ -142,11 +142,13 @@ class NextStepHead(torch.nn.Module):
 
     ## Calculate categorical loss of next exhibit id.
     loss_fn1 = torch.nn.CrossEntropyLoss()
-    exh_id_loss = loss_fn1(output_id.to(torch.float32), target_id[:,0])
+    exh_id_loss = loss_fn1(output_id, target_id[:,0])
 
     ## Calculate Mean-Squared-Error loss for next attendance time.
-    loss_fn2 = torch.nn.MSELoss()
-    time_att_loss = loss_fn2(self.scaler(output_time.to(torch.float32).squeeze(1)), self.scaler(target_id[:,1].to(torch.float32)))
+    loss_fn2 = torch.nn.CrossEntropyLoss()
+    # l.getLogger().error(output_time)
+    # l.getLogger().error(target_id[:,1])
+    time_att_loss = loss_fn2(output_time, target_id[:,1])
 
     ## Calculate top-1, top-3 and top-5 prediction accuracy of next exhibit id.
     hits_1, hits_3, hits_5, total = 0, 0, 0, int(output_id.size(0))
@@ -205,13 +207,18 @@ class AIVinci(torch.nn.Module):
     encoded, last_step = self.encoder(input_embeddings, input_lengths)
 
     label_out, (label_loss, label_accuracy) = self.label_head(last_step, target_label)
-    next_id, next_attendance_time, (next_id_loss, next_time_loss, next_id_accuracy) = self.next_id_head(last_step, target_id)
+    next_id, next_time, (next_id_loss, next_time_loss, next_id_accuracy) = self.next_id_head(last_step, target_id)
 
     if sampling:
       if temperature:
         sampled_id = torch.distributions.relaxed_categorical.RelaxedOneHotCategorical(
             temperature = temperature,
             logits = next_id,
+            validate_args = False if "1.9." in torch.__version__ else None,
+          ).sample()
+        sampled_time = torch.distributions.relaxed_categorical.RelaxedOneHotCategorical(
+            temperature = temperature,
+            logits = next_time,
             validate_args = False if "1.9." in torch.__version__ else None,
           ).sample()
         sampled_label = torch.distributions.relaxed_categorical.RelaxedOneHotCategorical(
@@ -221,9 +228,11 @@ class AIVinci(torch.nn.Module):
           ).sample()
       else:
         sampled_id    = torch.nn.softmax(next_id, dim = -1)
+        sampled_time  = torch.nn.softmax(next_time, dim = -1)
         sampled_label = torch.nn.softmax(label_out, dim = -1)
 
       next_id   = torch.argmax(sampled_id,    dim = -1)
+      next_time = torch.argmax(sampled_time,  dim = -1)
       label_out = torch.argmax(sampled_label, dim = -1)
       total_loss = None
     else:
@@ -238,6 +247,6 @@ class AIVinci(torch.nn.Module):
       'next_id_accuracy'    : next_id_accuracy,
       'label_out'           : label_out,
       'next_id'             : next_id,
-      'next_attendance_time': next_attendance_time,
+      'next_attendance_time': next_time,
       'sample'              : input_ids,
     }

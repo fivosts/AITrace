@@ -68,10 +68,9 @@ class Dataset(torch.utils.data.Dataset):
     corpus = []
     max_seq_len = 0
     for seq, label in self.dataset:
-      seq   = [[int(x) for x in ent.split(',')] for ent in seq.split('\n')]
       max_seq_len = max(max_seq_len, len(seq) - 1)
     for seq, label in self.dataset:
-      seq = [[int(x) for x in ent.split(',')] for ent in seq.split('\n')]
+      seq = [[min(int(x), 2047) for x in ent.split(',')] for ent in seq.split('\n')]
       corpus.append({
         'input_ids'    : torch.LongTensor(seq[:len(seq)-1] + [[4095, 4095]]*(max_seq_len - len(seq) + 1)),
         'input_lengths': torch.LongTensor([len(seq)-1]),
@@ -115,10 +114,9 @@ class UnrolledDataset(torch.utils.data.Dataset):
     corpus = []
     max_seq_len = 0
     for seq, label in self.dataset:
-      seq   = [[int(x) for x in ent.split(',')] for ent in seq.split('\n')]
       max_seq_len = max(max_seq_len, len(seq) - 1)
     for seq, label in self.dataset:
-      seq   = [[int(x) for x in ent.split(',')] for ent in seq.split('\n')]
+      seq   = [[min(int(x), 2047) for x in ent.split(',')] for ent in seq.split('\n')]
       label = int(label)
       ridx  = 1
       while ridx < len(seq):

@@ -1,0 +1,44 @@
+working_dir: "AITrace" ## This path is relative to "workspace_dir", which is an app FLAG
+model {
+  dataset {
+    ai_trace_dataset {
+      local_tar_archive: "$PWD/datasets/AITrace_data/ai_trace_full.zip"
+    }
+  #   hecht_dataset {
+  #     local_tar_archive: "$PWD/datasets/Kuflik_Hecht/museum_data.zip"
+  #   }
+  }
+  architecture {
+    backend: TORCH_LSTM
+    embedding_size: 128
+    layer_norm_eps: 1e-13
+    dropout_prob: 0.25
+    hidden_size: 1024
+    num_hidden_layers: 2
+    intermediate_size: 64
+    output_size: 1024
+  }
+  training {
+    num_epochs: 650
+    num_warmup_steps: 5000
+    batch_size: 64
+    random_seed: 12345
+    adam_optimizer {
+      initial_learning_rate_micros: 20  # = 0.02 real value
+    }
+    validation_percentage: 0.0
+  }
+}
+sampler {
+  server_sampling: true
+  # input_feed: True
+  server_port: 8080
+  prediction_type: "step"
+  batch_size: 1
+  temperature_micros: 1000000  # = 0.8 real value
+  termination_criteria {
+    maxlen {
+      maximum_tokens_in_sample: 512
+    }
+  }
+}

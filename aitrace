@@ -1,6 +1,0 @@
-##############################
-# Auto generated bash binary #
-# --------  AITrace ---------#
-#       Not to be edited     #
-##############################
-eval PYTHONPATH=/home/fivosts/AITrace_prvt/ML /home/fivosts/AITrace_prvt/ML/env/bin/python3.8 /home/fivosts/AITrace_prvt/ML/AITrace/aitrace.py "$@"

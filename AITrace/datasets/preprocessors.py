@@ -3,6 +3,7 @@ import typing
 import math
 
 from proto import dataset_pb2
+from datasets import aitrace_labels
 
 from eupy.native import logger as l
 
@@ -296,7 +297,7 @@ def ReformAITraceFormat(visitors: typing.Dict[str, typing.List[typing.Tuple[str,
     'movement_type'              : None
   }
 
-  for vid, actions in visitors.items():
+  for idx, (vid, actions) in enumerate(visitors.items()):
     datapoints.append(
       {
         'id': vid,
@@ -310,7 +311,7 @@ def ReformAITraceFormat(visitors: typing.Dict[str, typing.List[typing.Tuple[str,
         '#presentations_w_locations': 0,
         'avg_time_per_location': int(([x for x in actions if x[0] != "enters" and x[0] != "leaves" and x[0] != "<MuseumArea>"][-1][-1] - [x for x in actions if x[0] != "enters" and x[0] != "leaves" and x[0] != "<MuseumArea>"][0][1]) / len([x for x in actions if x[0] != "enters" and x[0] != "leaves" and x[0] != "<MuseumArea>"])),
         'total_time': int(actions[-1][-1] - actions[0][1]),
-        'movement_type': "UNK",
+        'movement_type': aitrace_labels.LABELS[idx+1],
       }
     )
   return datapoints

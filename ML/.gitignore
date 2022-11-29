@@ -1,0 +1,9 @@
+# Build folders and binaries
+/env
+/workspace
+aitrace
+
+# Auxiliary files
+*.pyc
+id_rsa
+*_pb2.py

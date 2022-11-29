@@ -24,6 +24,12 @@ flags.DEFINE_boolean(
   "Select to skip training and sample only."
 )
 
+flags.DEFINE_integer(
+  "checkpoint_step",
+  -1,
+  "Select specific checkpoint step."
+)
+
 class torchLSTM(backends.BackendBase):
   def __init__(self, config, path, model_hash):
     super(torchLSTM, self).__init__(config, path, model_hash)
@@ -171,7 +177,8 @@ class torchLSTM(backends.BackendBase):
             # time_per_sample_ms      = exec_time_ms / self.train_batch_size,
           )
           current_step += 1
-        self.saveCheckpoint(self.model, opt, scheduler, split_idx, current_step)
+        if ep % 4 == 0:
+          self.saveCheckpoint(self.model, opt, scheduler, split_idx, current_step)
         if len(validation_dataset) > 0:
           val_outputs = self.Validate(unrolled = val_unrolled_loader, standard = val_loader)
           train_hook.end_epoch(**val_outputs)
@@ -281,7 +288,12 @@ class torchLSTM(backends.BackendBase):
       get_step  = lambda x: int(x.replace("\n", "").replace("split_idx: ", "").split("train_step: ")[1])
       entries   = set({get_step(x) for x in mf.readlines() if x})
 
-    ckpt_step = max(entries)
+    if FLAGS.checkpoint_step == -1:
+      ckpt_step = max(entries)
+    else:
+      if FLAGS.checkpoint_step not in entries:
+        raise ValueError("Checkpoint step {} does not exist.".format(FLAGS.checkpoint_step))
+      ckpt_step = FLAGS.checkpoint_step
     ckpt_comp = lambda x: self.ckpt_path / "{}-{}-{}.pt".format(x, split_idx, ckpt_step)
 
     if isinstance(model, self.torch.nn.DataParallel):
@@ -307,8 +319,5 @@ class torchLSTM(backends.BackendBase):
             name = 'module.' + k # Add 'module.'
           new_state_dict[name] = v
         model.load_state_dict(new_state_dict)
-    if opt is not None and scheduler is not None and ckpt_step > 0:
-      opt.load_state_dict(self.torch.load(ckpt_comp("optimizer"), map_location=self.pytorch.device))
-      scheduler.load_state_dict(self.torch.load(ckpt_comp("scheduler"), map_location=self.pytorch.device))
     model.eval()
     return ckpt_step

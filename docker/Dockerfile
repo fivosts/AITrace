@@ -14,7 +14,7 @@ RUN apt-get update
 RUN apt-get install -y sudo git wget
 
 # Clone repository
-RUN git clone https://github.com/fivosts/AITrace.git
+RUN git clone git@github.com:AITrace/AITrace_prvt.git
 
 # Move to app base dir.
 WORKDIR /home/AITrace
@@ -55,7 +55,7 @@ RUN protoc /home/AITrace/AITrace/proto/aitrace.proto  --proto_path="/home/AITrac
 RUN protoc /home/AITrace/AITrace/proto/dataset.proto  --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
 RUN protoc /home/AITrace/AITrace/proto/model.proto    --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
 RUN protoc /home/AITrace/AITrace/proto/sampler.proto  --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
-RUN protoc /home/AITrace/AITrace/proto/internal.proto --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
+RUN protoc /home/AITrace/AITrace/proto/internal.proto  --proto_path="/home/AITrace/AITrace" --python_out="/home/AITrace/AITrace"
 
 # Setup python environment
 RUN mkdir -p /home/AITrace/env
@@ -75,4 +75,4 @@ RUN echo "eval PYTHONPATH=/home/AITrace/ /home/AITrace/env/bin/python3.8 /home/A
 RUN chmod 551 "/home/AITrace/aitrace"
 
 # Start application
-CMD cd /home/AITrace/ && git pull && /home/AITrace/aitrace --workspace_dir final_workspace --config model_zoo/smoke_test.pbtxt --pt_cpu_only
+CMD cd /home/AITrace/ && git pull && /home/AITrace/aitrace --workspace_dir final_workspace --config model_zoo/smoke_test.pbtxt --pt_cpu_only --checkpoint_step 104111 --only_sample
