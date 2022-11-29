@@ -25,6 +25,3 @@ sudo apt-get update; \
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 echo "-- Docker environment is configured."
-echo "-- To give Docker access to AITrace private repo you need a valid ssh key."
-echo "-- Copy your ssh key (likely found in ~/.ssh/id_rsa ) in this directory, in order to be included in Dockerfile's build context."
-echo "-- .gitignore excludes tracing of this key."
