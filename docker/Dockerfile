@@ -1,6 +1,10 @@
 FROM ubuntu:latest
 EXPOSE 8080
+ENV TZ=Europe/Athens
 ARG DEBIAN_FRONTEND=noninteractive
+
+# Setup TZ.
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Move to home directory.
 WORKDIR /home/
@@ -8,9 +12,6 @@ WORKDIR /home/
 # Install git and wget dependencies.
 RUN apt-get update
 RUN apt-get install -y sudo git wget
-
-# Make ssh dir
-RUN mkdir /root/.ssh/
 
 # Clone repository
 RUN git clone https://github.com/fivosts/AITrace.git
